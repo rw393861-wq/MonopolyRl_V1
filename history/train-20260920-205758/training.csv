@@ -1,0 +1,2 @@
+game,epsilon,avg_rounds,round_limit_pct,elapsed_s,AI_1_winrate,AI_1_states,AI_2_winrate,AI_2_states,AI_3_winrate,AI_3_states
+5000,0.12,59.25,0.1,45.0,0.294,1816,0.307,1819,0.243,1814

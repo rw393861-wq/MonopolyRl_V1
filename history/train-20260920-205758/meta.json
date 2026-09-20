@@ -1,0 +1,18 @@
+{
+  "games": 5000,
+  "max_rounds": 200,
+  "seed": 1,
+  "alpha": 0.5,
+  "gamma": 0.99,
+  "shaping": 0.15,
+  "eps_start": 0.3,
+  "eps_min": 0.12,
+  "decay_frac": 0.5,
+  "agents": [
+    "AI_1",
+    "AI_2",
+    "AI_3"
+  ],
+  "baseline_rate": 0.34,
+  "mode": "train"
+}

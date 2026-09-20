@@ -1,0 +1,71 @@
+name: train
+
+on:
+  workflow_dispatch:
+    inputs:
+      games:
+        description: games to train this run
+        default: "60000"
+      baseline_rate:
+        description: share of games containing the rule based opponent
+        default: "0.34"
+  schedule:
+    - cron: "0 15 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: rules invariant checks
+        run: python tests.py 200
+
+      - name: train
+        run: |
+          python run.py train \
+            --games ${{ inputs.games || 60000 }} \
+            --resume \
+            --baseline-rate ${{ inputs.baseline_rate || 0.34 }} \
+            --eps-start 0.3 --eps-min 0.12 --decay-frac 0.5 \
+            --report-every 5000 --event-every 2000
+
+      - name: benchmark against baselines
+        run: |
+          python run.py eval --games 300 --mode arena
+          python run.py eval --games 300 --mode vs_heuristic
+
+      - name: upload full logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 30
+
+      - name: commit tables and summaries
+        run: |
+          mkdir -p history
+          for d in logs/*/; do
+            n=$(basename "$d")
+            mkdir -p "history/$n"
+            cp "$d/report.md" "history/$n/" 2>/dev/null || true
+            cp "$d/training.csv" "history/$n/" 2>/dev/null || true
+            cp "$d/meta.json" "history/$n/" 2>/dev/null || true
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add models history
+          git diff --staged --quiet || git commit -m "training run ${{ github.run_number }}"
+          git push

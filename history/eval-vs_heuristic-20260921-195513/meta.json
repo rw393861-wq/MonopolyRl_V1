@@ -1,0 +1,10 @@
+{
+  "mode": "evaluate:vs_heuristic",
+  "games": 300,
+  "seed": 99,
+  "agents": [
+    "AI_1",
+    "heuristic_1",
+    "heuristic_2"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "mode": "evaluate:arena",
+  "games": 300,
+  "seed": 99,
+  "agents": [
+    "AI_1",
+    "random_1",
+    "heuristic_1"
+  ]
+}
